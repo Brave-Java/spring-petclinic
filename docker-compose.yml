@@ -1,4 +1,29 @@
 services:
+  server:
+    build:
+      context: .
+      target: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${PETCLINIC_PORT:-8080}:8080"
+      - "127.0.0.1:8000:8000"
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      POSTGRES_URL: jdbc:postgresql://postgres:5432/petclinic
+    develop:
+      watch:
+        - action: rebuild
+          path: ./src
+        - action: rebuild
+          path: pom.xml
+        - action: rebuild
+          path: Dockerfile
+        - action: rebuild
+          path: mvnw
+        - action: rebuild
+          path: .mvn
   mysql:
     image: mysql:9.7
     ports:
@@ -13,9 +38,16 @@ services:
       - "./conf.d:/etc/mysql/conf.d:ro"
   postgres:
     image: postgres:18.4
-    ports:
-      - "5432:5432"
     environment:
       - POSTGRES_PASSWORD=petclinic
       - POSTGRES_USER=petclinic
       - POSTGRES_DB=petclinic
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U petclinic -d petclinic"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+volumes:
+  postgres-data:

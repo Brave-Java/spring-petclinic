@@ -61,19 +61,25 @@ You can also run the app from your IDE; see [Develop and test](#develop-and-test
 
 ## Build and run a container
 
-This project does not include a Dockerfile. If Docker is installed and running, build an OCI image with the Spring Boot build plugin:
+This repository includes a [Dockerfile](Dockerfile) and a Compose setup for PetClinic with PostgreSQL. The database data is stored in a named volume. Start the application and database from the repository root:
 
 ```bash
-./mvnw spring-boot:build-image
+docker compose up --build server postgres
 ```
 
-Then start the image:
+Open <http://localhost:8080/> to use the application. Press `Ctrl+C` to stop it. To run the app and PostgreSQL in the background instead, use `docker compose up --build -d server postgres`; stop the services with `docker compose down`. The named database volume is retained unless you explicitly remove volumes. The `mysql` service is available separately and is not needed for this setup.
+
+If port 8080 is already in use, set an alternate host port, for example `PETCLINIC_PORT=8081 docker compose up --build server postgres`, then open <http://localhost:8081/>.
+
+### Develop with Docker Compose
+
+The Compose app service targets the Dockerfile's `development` stage, which enables a remote JVM debugger on port 8000. Start the app and PostgreSQL with automatic rebuilds when source or build files change:
 
 ```bash
-docker run -p 8080:8080 docker.io/library/spring-petclinic:latest
+PETCLINIC_PORT=8081 docker compose watch server postgres
 ```
 
-Visit <http://localhost:8080/> to use the application.
+Open <http://localhost:8081/>. To attach a remote debugger in your IDE, use host `localhost` and port `8000`. Press `Ctrl+C` to stop Compose Watch, or run `docker compose down` in another terminal. The PostgreSQL data volume is retained when you run `down`.
 
 ## Use a database
 
