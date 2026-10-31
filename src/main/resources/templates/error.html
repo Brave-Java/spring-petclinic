@@ -3,7 +3,8 @@
 <html xmlns:th="https://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'error')}">
 
 <body>
-  <img src="../static/resources/images/pets.png" th:src="@{/resources/images/pets.png}" />
+  <img class="img-fluid rounded" style="max-height: 300px; width: auto;" alt="Three cats"
+    src="../static/resources/images/boys01.jpg" th:src="@{/resources/images/boys01.jpg}" />
   <!-- Title: Something happened -->
   <h2 th:text="#{somethingHappened}">Something happened...</h2>
 

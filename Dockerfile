@@ -11,6 +11,16 @@ COPY .mvn/ .mvn/
 RUN --mount=type=bind,source=pom.xml,target=pom.xml \
     --mount=type=cache,target=/root/.m2 ./mvnw dependency:go-offline -DskipTests
 
+# Run the Java test suite in a dedicated build target.
+FROM deps AS test
+
+WORKDIR /build
+
+COPY ./src src/
+RUN --mount=type=bind,source=pom.xml,target=pom.xml \
+    --mount=type=cache,target=/root/.m2 \
+    ./mvnw test
+
 # Build the application.
 FROM deps AS package
 
